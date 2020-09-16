@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Weather Getter</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: rgb(0, 29, 29);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      .wrapper {
+        width: 50%;
+        height: 50%;
+        background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #000;
+      }
+      input {
+        width: 500px;
+        height: 45px;
+        outline: none;
+        border: none;
+        border-left: 4px solid rgb(0, 255, 255);
+        font-size: 20px;
+        padding: 10px;
+        font-weight: bold;
+      }
+      button {
+        width: 200px;
+        height: 45px;
+        outline: none;
+        border: none;
+        font-size: 20px;
+        font-weight: bold;
+        background: rgb(0, 255, 255);
+        cursor: pointer;
+      }
+
+      .wrapper2 {
+        width: 50%;
+        height: 20%;
+        background: transparent;
+        color: #000;
+        overflow: auto;
+      }
+      .wrapper2::-webkit-scrollbar {
+        width: 5px;
+        background: transparent;
+      }
+      .wrapper2::-webkit-scrollbar-track {
+        border: 2px solid rgba(161, 161, 161, 0.2);
+      }
+      .wrapper2::-webkit-scrollbar-thumb {
+        background: rgba(117, 116, 116, 0.5);
+        width: 2px;
+      }
+      .wrapper2 ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .wrapper2 ul li {
+        position: relative;
+        max-width: 800px;
+        display: inline-block;
+        clear: both;
+        padding: 16px;
+        color: #fff;
+        margin-bottom: 6px;
+        margin-right: 6px;
+        word-break: break-word;
+        background: rgb(0, 255, 255);
+        color: #000;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      h1 {
+        font-size: 3em;
+        color: #fff;
+        font-family: sans-serif;
+      }
+      h1 span {
+        text-decoration: underline rgb(0, 255, 255);
+      }
+      .loader {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+      .loader .spin {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: dotted 8px rgb(0, 255, 255);
+        box-shadow: 6px 6px 15px rgba(0, 255, 255, 0.5),
+          4px 4px 60px rgba(0, 255, 255, 0.5),
+          2px 2px 120px rgba(0, 255, 255, 0.5);
+        animation: spin 6s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      @media screen and (max-width: 800px) {
+        .wrapper {
+          width: 80%;
+        }
+      }
+      @media screen and (max-width: 480px) {
+        .wrapper {
+          width: 90%;
+          flex-direction: column;
+        }
+        input {
+          width: 300px;
+          margin-bottom: 10px;
+        }
+        h1 {
+          font-size: 30px;
+        }
+        .wrapper2 {
+          width: 80%;
+        }
+      }
+      @media screen and (max-width: 350px) {
+        input {
+          width: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="loader">
+        <div class="spin"></div>
+      </div>
+      <h1><span>Weather Getter</span></h1>
+      <div class="wrapper">
+        <input
+          id="txtBox"
+          type="text"
+          placeholder="Enter city or town..."
+          value=""
+        />
+        <button>Search</button>
+      </div>
+      <div class="wrapper2">
+        <ul id="list"></ul>
+      </div>
+    </div>
+
+    <script>
+      // const textBox = document.getElementById("textBox");
+      // const button = document.querySelector("button");
+      const textBox = document.getElementById("txtBox");
+      const btn = document.querySelector("button");
+      const list = document.getElementById("list");
+      const loader = document.querySelector(".loader");
+
+      function drawWeather(d) {
+        // var weatherData = JSON.parse(d.content);
+        var celcius = Math.round(parseFloat(JSON.parse(d.main.temp)) - 273.15);
+        var fahrenheit = Math.round(
+          (parseFloat(JSON.parse(d.main.temp)) - 273.15) * 1.8 + 32
+        );
+
+        // document.getElementById('description').innerHTML = d.weather[0].description;
+        // document.getElementById('temp').innerHTML = celcius + '&deg;';
+        // document.getElementById('location').innerHTML = d.name;
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `${d.weather[0].description}\n${celcius + "&deg;"}\n${
+          d.name
+        }`;
+        list.append(li);
+      }
+
+      function weatherBalloon(city) {
+        var key = "{yourkey}";
+        fetch(
+          "https://api.openweathermap.org/data/2.5/weather?q=" +
+            city +
+            "&appid=4c4787d82f309498e01eb65119025183"
+        )
+          .then(function (resp) {
+            return resp.json();
+          }) // Convert data to json
+          .then(function (data) {
+            drawWeather(data); // Call drawWeather
+            console.log(data);
+            loader.style = "display:none";
+          })
+          .catch(function (err) {
+            // catch any errors
+            console.log(err);
+          });
+      }
+      btn.addEventListener("click", () => {
+        if (textBox.value) {
+          weatherBalloon(textBox.value);
+          loader.style = "display:flex";
+        }
+        textBox.value = "";
+      });
+    </script>
+  </body>
+</html>
